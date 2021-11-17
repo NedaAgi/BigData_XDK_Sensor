@@ -1,0 +1,57 @@
+# WARNING: This docker-compose.yml is only for testing purpose.
+# Parameters:
+# - name: CONFLUENT_PLATFORM_VERSION
+#   default: 3.0.0
+#   reference: https://hub.docker.com/u/confluentinc/
+# Ports:
+# - description: Major ports are exposed to host computer
+# - zookeeper: 2181
+#      kafka1: 9091
+#      kafka2: 9092
+#      kafka3: 9093
+#      kafka4: 9094
+#      kafka5: 9095
+# Tips:>
+#   - You can up part of the cluster with below command.
+#     $ docker-compose up -d kafka1 kafka2 kafka3
+
+version: '3.3'
+services:
+
+# Use root/example as user/password credentials
+  db:
+    image: mysql:5.7
+    restart: 'always'
+#    volumes:
+#      - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
+#      - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "XDK"
+      MYSQL_USER: "agi"
+      MYSQL_PASSWORD: "agi"
+#  db:
+#    image: mysql:5.7
+#    command: --default-authentication-plugin=mysql_native_password
+#    restart: always
+#    environment:
+#    - MYSQL_ROOT_PASSWORD=root
+#    - MYSQL_DATABASE=XDK
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  grafana:
+    image: grafana/grafana
+    restart: always
+    ports:
+      - 3000:3000
+  consumer:
+    restart: always
+    build:
+      context: ./consumer
+      dockerfile: ./Dockerfile
+    depends_on:
+      - db
+      - kafka1
